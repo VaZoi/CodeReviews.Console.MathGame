@@ -1,4 +1,7 @@
-﻿List<string> mathGameHistory = new List<string>();
+﻿using System.Diagnostics;
+
+List<string> mathGameHistory = new List<string>();
+Random random = new Random();
 
 void Main()
 {
@@ -7,76 +10,65 @@ void Main()
 
 void Calculate(char operation)
 {
-    int firstNum = GetValidatedNumber($"Enter the first number for {operation}: ");
-    int secondNum = GetValidatedNumber($"Enter the second number for {operation}: ");
-
+    int question = 0;
     string formula;
-    int? answer = null;
-    string errorMessage = null;
-
+    int firstValue = random.Next(1, 101);
+    int secondValue = random.Next(1, 101);
     switch (operation)
     {
         case '+':
-            answer = firstNum + secondNum;
+            question = firstValue + secondValue;
             break;
         case '-':
-            answer = firstNum - secondNum;
+            question = firstValue - secondValue;
             break;
         case '*':
-            answer = firstNum * secondNum;
+            question = firstValue * secondValue;
             break;
         case '/':
-            if (secondNum == 0)
+            if (secondValue == 0)
             {
-                errorMessage = "Division by zero is not allowed.";
+                secondValue = 1;
             }
-            else
-            {
-                answer = firstNum / secondNum;
-                if (answer < 0 || answer > 100)
-                {
-                    errorMessage = "Result out of allowed range (0-100).";
-                }
-            }
+            question = firstValue / secondValue;
             break;
         default:
-            errorMessage = "Invalid operation.";
+            Console.WriteLine("Invalid Operation!");
             break;
     }
 
-    if (answer.HasValue)
+
+    formula = $"{firstValue} {operation} {secondValue} = ";
+    Console.WriteLine(formula);
+    Stopwatch stopwatch = new Stopwatch();
+    stopwatch.Start();
+    string answer = Console.ReadLine();
+    stopwatch.Stop();
+
+    int timer = (int)stopwatch.Elapsed.TotalSeconds;
+
+    if (int.TryParse(answer, out int number))
     {
-        formula = $"{firstNum} {operation} {secondNum}";
-        string wholeOperation = $"{formula} = {answer}";
-        Console.WriteLine(wholeOperation);
-        ToList(wholeOperation);
+        if (number == question)
+        {
+            string wholeOperation = $"{formula}{number}\tCorrect\t(Took {timer} seconds)";
+            Console.WriteLine(wholeOperation);
+            ToList(wholeOperation);
+        }
+        else
+        {
+            string wholeOperation = $"{formula}{number}\tIncorrect (Correct answer: {question})\t(Took {timer} seconds)";
+            Console.WriteLine(wholeOperation);
+            ToList(wholeOperation);
+        }
     }
     else
     {
-        Console.WriteLine(errorMessage);
+        Console.WriteLine("Invalid input. Please enter a number.");
     }
 
     Console.WriteLine("Press Enter to continue...");
     Console.ReadLine();
-}
-
-int GetValidatedNumber(string prompt)
-{
-    int number;
-    while (true)
-    {
-        Console.Write(prompt);
-        string input = Console.ReadLine();
-        if (int.TryParse(input, out number))
-        {
-            break;
-        }
-        else
-        {
-            Console.WriteLine("Invalid input. Please enter a valid integer.");
-        }
-    }
-    return number;
 }
 
 void ToList(string wholeOperation)
@@ -105,6 +97,9 @@ void ChooseGame(string choice)
             case 5:
                 ViewHistoryGames();
                 break;
+            case 6:
+                RandomGame();
+                break;
             default:
                 Console.WriteLine("Invalid choice. Please select a valid option.");
                 break;
@@ -114,6 +109,13 @@ void ChooseGame(string choice)
     {
         Console.WriteLine("Invalid input. Please enter a number between 1 and 5.");
     }
+}
+
+void RandomGame()
+{
+    char[] option = { '+', '-', '*', '/' };
+    int randomOption = random.Next(option.Length);
+    Calculate(option[randomOption]);
 }
 
 void ViewHistoryGames()
@@ -141,7 +143,7 @@ void InitializeGame()
     do
     {
         Console.Clear();
-        Console.WriteLine("Choose an option:\n1. Addition (+)\n2. Subtraction (-)\n3. Multiplication (*)\n4. Division (/)\n5. View Game History\nType 'exit' to quit.");
+        Console.WriteLine("Choose an option:\n1. Addition (+)\n2. Subtraction (-)\n3. Multiplication (*)\n4. Division (/)\n5. View Game History\n6. Random game\nType 'exit' to quit.");
         choice = Console.ReadLine().Trim();
         if (choice.ToLower() != "exit")
         {
